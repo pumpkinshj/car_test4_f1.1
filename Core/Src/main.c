@@ -51,7 +51,16 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+int left_pwm = 0;
+int right_pwm = 0;
+int left_target = 100;
+int right_target= 100;
+int32_t L_actual = 0;
+int32_t R_actual = 0;
+
 float pitch,roll,yaw;
+
 float base_speed = 0.0; //正常速度
 float target_angle = 0.0;//正常角度
 
@@ -126,6 +135,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    //速度获取
+    L_actual = get_speed(&htim1);
+    R_actual = get_speed(&htim3);
+
     MPU6050_DMP_Get_Date(&pitch,&roll,&yaw);
 
     OLED_NewFrame();
@@ -138,9 +151,15 @@ int main(void)
     OLED_PrintString(0, 0, message, &font16x16, OLED_COLOR_NORMAL);
 
     OLED_ShowFrame();
+
+    //速度环
+    speed_ring_l.actual = L_actual;
+    speed_ring_l.actual = R_actual;
+    PID_update(speed_ring_l);
+    PID_update(speed_ring_r);
     //控制电机
-    Set_Pwml(angle_ring.out);
-    Set_Pwmr(angle_ring.out);
+    Set_Pwml(speed_ring_l.out);
+    Set_Pwmr(speed_ring_r.out);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
