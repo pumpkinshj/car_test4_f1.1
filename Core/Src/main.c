@@ -64,7 +64,7 @@ float pitch,roll,yaw;
 float base_speed = 0.0; //正常速度
 float target_angle = 0.0;//正常角度
 
-char message[20] = "";
+char message[30] = "";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -138,20 +138,17 @@ int main(void)
     //速度获取
     L_actual = get_speed(&htim1);
     R_actual = get_speed(&htim3);
-
     MPU6050_DMP_Get_Date(&pitch,&roll,&yaw);
-
-    OLED_NewFrame();
-
     //角度环
     angle_ring.target = target_angle;
     PID_update(angle_ring);
-
-    sprintf(message, "yaw: %.2f", yaw);
+    speed_ring_l.target = base_speed - angle_ring.out;
+    speed_ring_r.target = base_speed + angle_ring.out;
+    //oled显示数据
+    OLED_NewFrame();
+    sprintf(message, "yaw: %.2f,L_actual: %d,R_actual: %d", yaw,L_actual,R_actual);
     OLED_PrintString(0, 0, message, &font16x16, OLED_COLOR_NORMAL);
-
     OLED_ShowFrame();
-
     //速度环
     speed_ring_l.actual = L_actual;
     speed_ring_l.actual = R_actual;
@@ -160,6 +157,8 @@ int main(void)
     //控制电机
     Set_Pwml(speed_ring_l.out);
     Set_Pwmr(speed_ring_r.out);
+
+    HAL_Delay(10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

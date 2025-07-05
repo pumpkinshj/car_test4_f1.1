@@ -56,6 +56,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         Lib/Src/pid.c
         Lib/Src/font.c
         Lib/Src/oled.c
+        Lib/Src/Debug.c
 )
 
 # Add include paths
