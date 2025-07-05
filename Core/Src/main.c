@@ -64,8 +64,6 @@ float pitch,roll,yaw;
 
 float base_speed = 0.0; //正常速度
 float target_angle = 0.0;//正常角度
-
-char message[30] = "";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -129,8 +127,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
 
   //OLED初始化
-  HAL_Delay(20);
-  OLED_Init();
+
   HAL_UARTEx_ReceiveToIdle_IT(&huart1, sofa_data, sizeof(sofa_data));
   /* USER CODE END 2 */
 
@@ -147,11 +144,6 @@ int main(void)
     PID_update(angle_ring);
     speed_ring_l.target = base_speed - angle_ring.out;
     speed_ring_r.target = base_speed + angle_ring.out;
-    //oled显示数据
-    OLED_NewFrame();
-    sprintf(message, "yaw: %.2f,L_actual: %d,R_actual: %d", yaw,L_actual,R_actual);
-    OLED_PrintString(0, 0, message, &font16x16, OLED_COLOR_NORMAL);
-    OLED_ShowFrame();
     //速度环
     speed_ring_l.actual = L_actual;
     speed_ring_l.actual = R_actual;
