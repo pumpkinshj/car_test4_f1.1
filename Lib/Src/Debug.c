@@ -9,9 +9,7 @@
 #include "font.h"
 #include "pid.h"
 
-uint8_t sofa_data[50];
-uint8_t camera_data[50];
-int stop_flag = 0;
+uint8_t sofa_data[15];
 
 
 float parse_float_from_uart(const uint8_t* data, uint16_t length) {
@@ -161,22 +159,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     {
         value = parse_float_from_uart(sofa_data,(uint16_t)strlen(sofa_data));
         speed_ring_r.kd = value;
-    }
-    else if(sofa_data[0] == 0)
-    {
-        ring_mode = 0;
-    }
-    else if(sofa_data[0] == 1)
-    {
-        ring_mode = 1;
-    }
-    else if(sofa_data[0] == 2)
-    {
-        ring_mode = 2;
-    }
-    else if(sofa_data[0] == 3)
-    {
-        ring_mode = 3;
     }
     HAL_UARTEx_ReceiveToIdle_IT(&huart1, sofa_data, sizeof(sofa_data));
     }

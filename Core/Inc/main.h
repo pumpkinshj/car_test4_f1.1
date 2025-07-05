@@ -36,7 +36,6 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-extern int ring_mode;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
