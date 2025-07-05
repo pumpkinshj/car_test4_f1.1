@@ -9,7 +9,6 @@
 #include "font.h"
 #include "pid.h"
 
-
 uint8_t sofa_data[50];
 uint8_t camera_data[50];
 int stop_flag = 0;
@@ -75,46 +74,46 @@ float parse_float_from_uart(const uint8_t* data, uint16_t length) {
 
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
-    if (huart == &huart1) {
-        OLED_NewFrame();
-        if (huart==&huart1){
-            if (Size==10){
-                if (camera_data[0]==0xA5 && camera_data[1]==0xA6 &&camera_data[9]==0x5B){
-                    int data1=camera_data[2]+camera_data[3]+camera_data[4]+camera_data[5];
-                    int data2=camera_data[5]+camera_data[6]+camera_data[7]+camera_data[8];
-                    if (data2>data1){
-                        OLED_PrintString(30, 30,"turn_right",&font16x16,OLED_COLOR_NORMAL);
-                    }
-                    else if(data2<data1){
-                        OLED_PrintString(30, 30, "turn_left", &font16x16, OLED_COLOR_NORMAL);
-                    }
-                    else if(data2==0){
-                        OLED_PrintString(30, 30, "no way", &font16x16, OLED_COLOR_NORMAL);
-                    }
-                    else{
-                        OLED_PrintString(30, 30, "go ahead", &font16x16, OLED_COLOR_NORMAL);
-                    }
-                }
-            }
-            else if(Size==4){
-                if (camera_data[0]==0xA5 && camera_data[1]==0xA6 &&camera_data[3]==0x5B){
-                    int t=camera_data[2];
-                    if(t==1){
-                        OLED_PrintString(30, 30,"stop",&font16x16,OLED_COLOR_NORMAL);
-                        stop_flag = 1;
-                    }
-                    else{
-                        OLED_PrintString(30, 30,"go_ahead",&font16x16,OLED_COLOR_NORMAL);
-
-                    }
-                }
-            }
-            OLED_ShowFrame();
-            ///HAL_UART_Receive_DMA(&huart1, receivedata1, sizeof(receivedata1));
-            HAL_UARTEx_ReceiveToIdle_DMA(&huart1, camera_data, sizeof(camera_data));
-        }
-    }
-    if (huart == &huart2){
+    // if (huart == &huart1) {
+    //     OLED_NewFrame();
+    //     if (huart==&huart1){
+    //         if (Size==10){
+    //             if (camera_data[0]==0xA5 && camera_data[1]==0xA6 &&camera_data[9]==0x5B){
+    //                 int data1=camera_data[2]+camera_data[3]+camera_data[4]+camera_data[5];
+    //                 int data2=camera_data[5]+camera_data[6]+camera_data[7]+camera_data[8];
+    //                 if (data2>data1){
+    //                     OLED_PrintString(30, 30,"turn_right",&font16x16,OLED_COLOR_NORMAL);
+    //                 }
+    //                 else if(data2<data1){
+    //                     OLED_PrintString(30, 30, "turn_left", &font16x16, OLED_COLOR_NORMAL);
+    //                 }
+    //                 else if(data2==0){
+    //                     OLED_PrintString(30, 30, "no way", &font16x16, OLED_COLOR_NORMAL);
+    //                 }
+    //                 else{
+    //                     OLED_PrintString(30, 30, "go ahead", &font16x16, OLED_COLOR_NORMAL);
+    //                 }
+    //             }
+    //         }
+    //         else if(Size==4){
+    //             if (camera_data[0]==0xA5 && camera_data[1]==0xA6 &&camera_data[3]==0x5B){
+    //                 int t=camera_data[2];
+    //                 if(t==1){
+    //                     OLED_PrintString(30, 30,"stop",&font16x16,OLED_COLOR_NORMAL);
+    //                     stop_flag = 1;
+    //                 }
+    //                 else{
+    //                     OLED_PrintString(30, 30,"go_ahead",&font16x16,OLED_COLOR_NORMAL);
+    //
+    //                 }
+    //             }
+    //         }
+    //         OLED_ShowFrame();
+    //         ///HAL_UART_Receive_DMA(&huart1, receivedata1, sizeof(receivedata1));
+    //         HAL_UARTEx_ReceiveToIdle_DMA(&huart1, camera_data, sizeof(camera_data));
+    //     }
+    // }
+    if (huart == &huart1){
     const uint8_t second = sofa_data[1];
     const uint8_t third = sofa_data[2];
     float value;
@@ -163,7 +162,23 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         value = parse_float_from_uart(sofa_data,(uint16_t)strlen(sofa_data));
         speed_ring_r.kd = value;
     }
-    HAL_UARTEx_ReceiveToIdle_IT(&huart2, sofa_data, sizeof(sofa_data));
+    else if(sofa_data[0] == 0)
+    {
+        ring_mode = 0;
+    }
+    else if(sofa_data[0] == 1)
+    {
+        ring_mode = 1;
+    }
+    else if(sofa_data[0] == 2)
+    {
+        ring_mode = 2;
+    }
+    else if(sofa_data[0] == 3)
+    {
+        ring_mode = 3;
+    }
+    HAL_UARTEx_ReceiveToIdle_IT(&huart1, sofa_data, sizeof(sofa_data));
     }
 }
 

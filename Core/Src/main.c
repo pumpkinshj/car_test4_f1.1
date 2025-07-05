@@ -20,12 +20,13 @@
 #include "main.h"
 #include "i2c.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
-
+#include "Debug.h"
 #include "get_speed.h"
 #include "motor.h"
 #include "pid.h"
@@ -56,8 +57,8 @@ int left_pwm = 0;
 int right_pwm = 0;
 int left_target = 100;
 int right_target= 100;
-int32_t L_actual = 0;
-int32_t R_actual = 0;
+int L_actual = 0;
+int R_actual = 0;
 
 float pitch,roll,yaw;
 
@@ -65,6 +66,8 @@ float base_speed = 0.0; //正常速度
 float target_angle = 0.0;//正常角度
 
 char message[30] = "";
+
+int ring_mode = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -113,6 +116,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_I2C2_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   //陀螺仪初始化
   int ret;
@@ -129,6 +133,7 @@ int main(void)
   //OLED初始化
   HAL_Delay(20);
   OLED_Init();
+  HAL_UARTEx_ReceiveToIdle_IT(&huart1, sofa_data, sizeof(sofa_data));
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -157,6 +162,14 @@ int main(void)
     //控制电机
     Set_Pwml(speed_ring_l.out);
     Set_Pwmr(speed_ring_r.out);
+    if (ring_mode == 1) {
+      UART_Printf(&huart1,"%.2f,%.2f,%.2f\r\n",angle_ring.target,angle_ring.actual,angle_ring.out);
+    }else if (ring_mode == 2) {
+      UART_Printf(&huart1,"%.2f,%.2f,%.2f\r\n",speed_ring_l.target,speed_ring_l.actual,speed_ring_l.out);
+    }else if (ring_mode == 3) {
+      UART_Printf(&huart1,"%.2f,%.2f,%.2f\r\n",speed_ring_r.target,speed_ring_r.actual,speed_ring_r.out);
+    }
+
 
     HAL_Delay(10);
     /* USER CODE END WHILE */
